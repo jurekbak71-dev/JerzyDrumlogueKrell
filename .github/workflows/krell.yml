@@ -18,6 +18,11 @@ jobs:
         run: |
           g++ -std=c++14 -Wall -Wextra -Werror -fsanitize=address,undefined -fno-omit-frame-pointer -g -O1 -I sdk/platform/drumlogue/common -I synth tests/krell_test.cc -o krell-test
           ./krell-test
+      - name: Render sequencer pad audio preview
+        run: |
+          g++ -std=c++14 -Wall -Wextra -Werror -O2 -I sdk/platform/drumlogue/common -I synth tests/preview.cc -o preview
+          ./preview > preview.pcm
+          python3 -c "import wave; w=wave.open('JerzyKrell-preview.wav','wb'); w.setnchannels(2); w.setsampwidth(2); w.setframerate(48000); w.writeframes(open('preview.pcm','rb').read()); w.close()"
       - name: Compile ARM unit with official SDK build process
         run: |
           cp -r synth sdk/platform/drumlogue/jerzy-krell
@@ -32,9 +37,11 @@ jobs:
           python3 tests/verify_unit.py dist/jerzy_krell.drmlgunit | tee dist/VALIDATION.txt
           readelf -h dist/jerzy_krell.drmlgunit > dist/ELF.txt
           readelf --dyn-syms -W dist/jerzy_krell.drmlgunit > dist/SYMBOLS.txt
-          for symbol in unit_init unit_render unit_header unit_note_on unit_note_off unit_set_param_value unit_set_tempo; do
+          for symbol in unit_init unit_render unit_header unit_note_on unit_note_off unit_set_param_value unit_set_tempo unit_gate_on unit_gate_off unit_all_note_off; do
             grep -Eq "GLOBAL +DEFAULT +[0-9]+ +$symbol$" dist/SYMBOLS.txt
           done
+          cp JerzyKrell-preview.wav dist/
+          cp LICENSE dist/LICENSE_DSP.txt
           cp README.md dist/README_PL.md
           cp sdk/LICENSE dist/LICENSE_KORG.txt
           cd dist
