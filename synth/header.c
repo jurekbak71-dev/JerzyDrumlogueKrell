@@ -2,7 +2,7 @@
 #define P(lo,hi,init,type,name) {lo,hi,0,init,type,0,0,0,{name}}
 const __unit_header unit_header_t unit_header={
 .header_size=sizeof(unit_header_t),.target=UNIT_TARGET_PLATFORM|k_unit_module_synth,
-.api=UNIT_API_VERSION,.dev_id=0x4A424B31U,.unit_id=0x4B524C31U,.version=0x10000U,
+.api=UNIT_API_VERSION,.dev_id=0x4A424B31U,.unit_id=0x4B524C31U,.version=0x10001U,
 .name="JerzyKrell",.num_presets=0,.num_params=24,.params={
 P(24,84,48,k_unit_param_type_midi_note,"NOTE"),
 P(0,5,4,k_unit_param_type_strings,"CHORD"),
