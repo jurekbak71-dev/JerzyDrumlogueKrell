@@ -69,7 +69,9 @@ class Synth {
    delay_[0][delayWrite_]=l+dr*smooth_[Feedback]*.01f;delay_[1][delayWrite_]=rout+dl*smooth_[Feedback]*.01f;
    delayWrite_=(delayWrite_+1)%Delay;if(filled_<Delay)++filled_;
    const float a=(l+dl*smooth_[Echo]*.01f)*smooth_[Level]*.01f,b=(rout+dr*smooth_[Echo]*.01f)*smooth_[Level]*.01f;
-   out[2*f]=a/(1+std::fabs(a));out[2*f+1]=b/(1+std::fabs(b));
+   float oa=a/(1+std::fabs(a)),ob=b/(1+std::fabs(b));
+   if(!std::isfinite(oa)||!std::isfinite(ob)){oa=ob=0.f;panic_.store(true);}
+   out[2*f]=oa;out[2*f+1]=ob;
   }
  }
  private:
