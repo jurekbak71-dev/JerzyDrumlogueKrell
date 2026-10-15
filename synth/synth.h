@@ -48,11 +48,12 @@ class Synth {
     const float depth=smooth_[Depth]*.01f;
     const float inc=v.increment*bend*(1.f+cv[2]*smooth_[Drift]*.00057762f);
     const float fm=fmax(0.f,fmin(.6f,smooth_[FM]*.0035f+cv[0]*depth*.16f));
-    float x=.5f*(sine(v.phase+sine(v.mod)*fm)+sine(v.other+sine(v.mod)*fm));
+    const float phaseMod=sine(v.mod)*fm;
+    float x=.5f*(sine(v.phase+phaseMod)+sine(v.other+phaseMod));
     x*=1.f+smooth_[Fold]*.025f+cv[1]*depth*.35f;
     if(x>1)x=2-x;else if(x< -1)x=-2-x;
     if(x>1)x=2-x;else if(x< -1)x=-2-x;
-    x+=randf()*smooth_[Air]*.0004f;
+    if(smooth_[Air]>.00001f)x+=randf()*smooth_[Air]*.0004f;
     const float env=v.env*v.env*(3-2*v.env);
     const float cutoff=fmax(40.f,fmin(16000.f,smooth_[Tone]*(1+cv[1]*depth*.6f)*(1-smooth_[LPG]*.009f*(1-env))));
     const float a=cutoff/(cutoff+7639.437f);
@@ -66,7 +67,13 @@ class Synth {
    }
    const unsigned rd=(delayWrite_+Delay-delayFrames)%Delay;
    const float dl=filled_>=delayFrames?delay_[0][rd]:0,dr=filled_>=delayFrames?delay_[1][rd]:0;
-   delay_[0][delayWrite_]=l+dr*smooth_[Feedback]*.01f;delay_[1][delayWrite_]=rout+dl*smooth_[Feedback]*.01f;
+   // Bounded recirculation protects long pads from pathological feedback build-up.
+   const float feedback=smooth_[Feedback]*.01f;
+   const float fbL=dr*feedback,fbR=dl*feedback;
+   const float writeL=l+fbL/(1.f+std::fabs(fbL));
+   const float writeR=rout+fbR/(1.f+std::fabs(fbR));
+   delay_[0][delayWrite_]=std::fabs(writeL)<1.e-19f?0.f:writeL;
+   delay_[1][delayWrite_]=std::fabs(writeR)<1.e-19f?0.f:writeR;
    delayWrite_=(delayWrite_+1)%Delay;if(filled_<Delay)++filled_;
    const float a=(l+dl*smooth_[Echo]*.01f)*smooth_[Level]*.01f,b=(rout+dr*smooth_[Echo]*.01f)*smooth_[Level]*.01f;
    float oa=a/(1+std::fabs(a)),ob=b/(1+std::fabs(b));

@@ -1,4 +1,10 @@
-# JerzyKrell — pady sterowane sekwencerem drumlogue
+# JerzyKrell 1.0.2 — pady sterowane sekwencerem drumlogue
+
+Zmiany 1.0.2: obliczanie FM fazy tylko raz na głos/próbkę, pomijanie
+generowania szumu kiedy AIR=0 oraz łagodna kontrola sprzężenia
+ping-pong echo z ochroną przed denormalami. Zachowane wszystkie
+24 parametry, nazwa instrumentu, geometria głosów i przypisania Motion.
+
 
 Nowy sześciogłosowy syntezator USER ENGINE. Pady inspirowane charakterem Krell/Buchla: FM sinusów, wavefolder, powolna losowa modulacja, dryf stroju, filtr powiązany z obwiednią oraz stereo ping-pong echo. To autorska interpretacja, nie emulacja konkretnego modułu. Instrument nie korzysta z sampli.
 
